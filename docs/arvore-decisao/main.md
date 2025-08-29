@@ -4,8 +4,8 @@ Para o projeto foi utilizado o dataset [](){}
 
 ## Pré-processamento
 
-``` python
-    
+``` python exec="on" html="1"
+--8<-- "docs/arvore-decisao/prepair.py"
 ```
 
 ## Divisão dos Dados
