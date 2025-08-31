@@ -10,8 +10,12 @@ label_encoder = LabelEncoder()
 
 df = pd.read_csv("./src/mydata.csv")
 
-# Excluir as conlunas não desejadas
-df = df.drop(columns= ["date", "clock", "links"])
+# Excluir as colunas não desejadas
+df = df.drop(columns= ["date", "clock", "links", "Goals Home", "Away Goals", "home_shots", "away_shots", "home_on", "away_on",
+                        "home_off", "away_off", "home_blocked", "away_blocked", "home_corners", "away_corners", 
+                        "home_offside", "away_offside", "home_tackles", "away_tackles", "home_duels", "away_duels",
+                        "home_saves", "away_saves", "home_fouls", "away_fouls", "home_yellow", "away_yellow",
+                        "home_red", "away_red"])
 
 # Label encoding dos estadios em texto
 df["stadium"] = label_encoder.fit_transform(df["stadium"])
