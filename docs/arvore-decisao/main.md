@@ -174,7 +174,7 @@ Dessa forma, o conjunto de treinamento foi usado para ajustar os parâmetros da 
     ```
 === "code"
     ```python exec="0"    
-    --8<-- "docs/arvore/arvore.py"
+    --8<-- "docs/arvore-decisao/arvore.py"
     ```
 
 ## Avaliação do Modelo
