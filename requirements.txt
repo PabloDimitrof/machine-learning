@@ -16,3 +16,4 @@ pandas
 yfinance
 scikit-learn
 tabulate
+seaborn
