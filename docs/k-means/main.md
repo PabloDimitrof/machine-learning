@@ -1,8 +1,9 @@
 ## Introdução
-O objetivo desta etapa foi aplicar o algoritmo *K-Nearest Neighbors* (KNN) sobre a base de dados de partidas de futebol, utilizando as bibliotecas `pandas`, `numpy`, `matplotlib` e `scikit-learn`.  
-Diferente da árvore de decisão, o KNN classifica novas observações com base na proximidade de exemplos já conhecidos.  
-A proposta é avaliar como variáveis como estádio, público, posse de bola, passes e chances criadas podem auxiliar na previsão do resultado da partida (`class`).  
-Foram desenvolvidas duas abordagens: uma implementação manual, para consolidar a compreensão do funcionamento do método, e outra com a biblioteca *scikit-learn*, permitindo comparação de resultados e visualização da fronteira de decisão por meio do PCA.
+O objetivo desta etapa foi aplicar o algoritmo **K-Means Clustering** sobre a base de partidas de futebol da Premier League.  
+Diferente dos modelos anteriores (Árvore de Decisão e KNN), o K-Means é um algoritmo **não supervisionado**, ou seja, não utiliza a variável-alvo durante o treinamento.  
+A proposta aqui é identificar **padrões ocultos** nos dados a partir de estatísticas das partidas — como posse de bola, passes, chances criadas, público e estádio — e verificar como esses agrupamentos se relacionam com os resultados reais (`class`).  
+
+Para fins de visualização, os dados foram reduzidos para duas dimensões via **PCA**, permitindo a representação gráfica dos clusters e seus centróides.
 
 ## Base de dados
 A base de dados utilizada neste projeto contém informações de partidas de futebol, totalizando **1140 linhas** e **40 colunas**. Entre as variáveis estão posse de bola, número de passes e chances criadas.  
@@ -133,6 +134,7 @@ Entre as etapas realizadas estão:
 - **Separação entre features e target**: as variáveis explicativas (`X`) foram definidas a partir de aproximadamente dez colunas relevantes da base, enquanto a variável alvo (`y`) é a coluna `class`.  
 - **Divisão em treino e teste**: o conjunto de dados foi dividido em duas partes, garantindo estratificação do alvo para manter o equilíbrio das classes.
 
+
 === "Base preparada"
 
     ```python exec="1"
@@ -160,84 +162,71 @@ Foi utilizada a função `train_test_split` da biblioteca *scikit-learn*, com os
 - **Estratificação pelo alvo (`class`)**, garantindo que a proporção entre vitórias do mandante, empates e vitórias do visitante fosse mantida em ambos os conjuntos;  
 - **Random State** fixado, assegurando reprodutibilidade na divisão.  
 
-
 ```python exec="0"
 --8<-- "docs/arvore-decisao/div.py"
 ```
 
 ## Treinamento do Modelo
 
-Nesta seção foi implementado o algoritmo KNN de forma manual, a partir do zero, para consolidar o entendimento do funcionamento do método.  
-A implementação considera a distância euclidiana entre os pontos, identifica os vizinhos mais próximos e atribui a classe com maior frequência.  
-Esse exercício é importante para compreender a lógica por trás do KNN antes de utilizar bibliotecas prontas.
+O modelo foi treinado com **3 clusters**, em referência às três classes possíveis do resultado da partida: vitória do mandante, empate e vitória do visitante.  
+
+Após o pré-processamento (padronização das variáveis numéricas e transformação das categóricas em dummies), o algoritmo K-Means foi aplicado sobre os dados transformados.  
+Em seguida, os dados foram projetados em duas dimensões com PCA para permitir a visualização gráfica.  
+
+Na figura abaixo é possível observar a formação dos **três clusters identificados pelo algoritmo** e seus respectivos centróides (em vermelho):
 
 === "Modelo"
     ```python exec="on" html="1"    
-    --8<-- "docs/knn/modelo.py"
+    --8<-- "docs/k-means/treino.py"
     ```
 === "Código"
     ```python exec="0"    
-    --8<-- "docs/knn/modelo.py"
+    --8<-- "docs/k-means/treino.py"
     ```
 
-## Usando Scikit-Learn
+Esse resultado mostra que o algoritmo conseguiu dividir os dados em agrupamentos distintos, mas com **fronteiras de separação difusas**, já que as estatísticas utilizadas não garantem divisões claras entre os diferentes resultados das partidas.
 
-Nesta seção foi implementado o algoritmo KNN de forma manual, a partir do zero, para consolidar o entendimento do funcionamento do método.  
-A implementação considera a distância euclidiana entre os pontos, identifica os vizinhos mais próximos e atribui a classe com maior frequência.  
-Esse exercício é importante para compreender a lógica por trás do KNN antes de utilizar bibliotecas prontas.
-
-=== "Resultado"
-    ```python exec="on" html="1"    
-    --8<-- "docs/knn/setup.py"
-    ```
-=== "Código"
-    ```python exec="0"    
-    --8<-- "docs/knn/setup.py"
-    ```
 
 ## Avaliação do Modelo
 
-Após o treinamento do algoritmo KNN, o modelo foi avaliado no conjunto de teste, obtendo resultados de acurácia em torno de **0.42** (usando scikit-learn) e **0.51** (na implementação manual).  
-Esses valores mostram que o modelo consegue acertar parte das previsões, mas ainda apresenta uma performance limitada.  
+Para avaliar a qualidade do clustering, os rótulos de clusters foram mapeados para as classes reais (`class`) por meio de um **voto majoritário** dentro de cada grupo.  
+Dessa forma, foi possível calcular métricas de classificação mesmo em um cenário originalmente não supervisionado.  
 
-Esse resultado deve ser interpretado considerando a **natureza do problema**: prever o resultado de uma partida de futebol é uma tarefa complexa, com alto grau de incerteza.  
-Mesmo dispondo de estatísticas como posse de bola, passes, chances criadas, estádio e público, o desfecho de um jogo depende também de fatores externos como arbitragem, lesões, clima, motivação e até elementos de acaso.  
-Portanto, ainda que houvesse mais dados disponíveis, a previsão exata continuaria sendo incerta.  
+O modelo obteve uma **acurácia aproximada de 47.92%**, com a seguinte matriz de confusão:
 
-A figura abaixo mostra a **fronteira de decisão do KNN** no espaço bidimensional reduzido pelo PCA.  
-As regiões coloridas representam as áreas de influência de cada classe, enquanto os pontos correspondem às partidas reais.
+=== "Resultado"
+    ```python exec="on" html="1"    
+    --8<-- "docs/k-means/avaliacao.py"
+    ```
+=== "Código"
+    ```python exec="0"    
+    --8<-- "docs/k-means/avaliacao.py"
+    ```
 
-É possível observar uma forte **sobreposição entre classes**, com pontos de diferentes resultados distribuídos de forma bastante misturada. Isso reforça as limitações do modelo:
+As observações principais são:
 
-- **Baixa capacidade preditiva**: as variáveis utilizadas ajudam a descrever o contexto, mas não criam fronteiras claras para separar vitórias, empates e derrotas.  
-- **Balanceamento do alvo**: os empates, menos frequentes, tendem a ser mal classificados, prejudicando a acurácia global.  
-- **Sensibilidade do algoritmo**: o KNN depende fortemente da escala, da escolha de `k` e da representação dos dados, o que gera variações nos resultados.  
-- **Complexidade do domínio**: a imprevisibilidade do futebol limita naturalmente a precisão que qualquer modelo pode alcançar.  
+- O algoritmo conseguiu capturar alguns padrões nas vitórias do mandante (Classe 0) e visitante (Classe 2), mas ainda houve bastante confusão entre elas.  
+- A classe de empate (Classe 1) foi a mais difícil de identificar, refletindo sua baixa frequência no dataset e a sobreposição natural entre variáveis.  
+- A visualização em 2D reforça essa dificuldade, mostrando que as fronteiras entre grupos são pouco definidas.
 
-Portanto, as acurácias obtidas refletem tanto as limitações do KNN quanto a complexidade do fenômeno esportivo. Mais do que “acertar resultados”, o exercício evidencia os desafios de aplicar *Machine Learning* em cenários reais de alta incerteza.
 
 ## Relatório Final
 
-O projeto teve como objetivo aplicar o algoritmo KNN sobre uma base de partidas de futebol, explorando seu potencial no contexto esportivo.  
+O experimento com K-Means evidenciou os desafios de aplicar **técnicas não supervisionadas** no domínio esportivo:  
 
-A análise foi conduzida em etapas bem definidas:
+- **Exploração**: foram utilizadas variáveis contextuais (estádio, público) e estatísticas gerais (posse, passes, chances), previamente normalizadas e transformadas em numéricas.  
+- **Treinamento**: o K-Means gerou 3 clusters, interpretados como padrões de desempenho relacionados ao resultado da partida.  
+- **Avaliação**: ao comparar clusters com classes reais, a acurácia foi de ~47.9%, valor semelhante aos modelos supervisionados, mas com maiores limitações na interpretação.  
 
-- **Exploração dos Dados (EDA)**: foram selecionadas e analisadas cerca de dez variáveis relevantes, incluindo `stadium`, `attendance`, `Home Team`, `Away Team`, `home_possessions`, `away_possessions`, `home_pass`, `away_pass`, `home_chances` e `away_chances`.  
-- **Pré-processamento**: colunas irrelevantes (como IDs e dados de tempo) e estatísticas ligadas diretamente ao resultado (como gols) foram removidas. Variáveis categóricas foram transformadas em numéricas via *One-Hot Encoding* e variáveis contínuas foram padronizadas.  
-- **Divisão dos Dados**: o conjunto foi separado em treino (70%) e teste (30%), preservando a proporção entre vitórias, empates e derrotas através da estratificação.  
-- **Treinamento e Avaliação**: o KNN foi aplicado em duas versões — manual e com *scikit-learn* — alcançando acurácias de **0.42–0.51**, valores que evidenciam desempenho limitado, mas condizente com a natureza do problema.  
-
-A avaliação trouxe alguns aprendizados importantes:
-- O KNN é sensível à preparação dos dados e à escolha de hiperparâmetros, o que explica diferenças entre implementações.  
-- As variáveis utilizadas caracterizam parcialmente os jogos, mas não são suficientes para prever com exatidão seus resultados.  
-- A visualização da fronteira de decisão mostrou que as classes apresentam alta sobreposição, o que dificulta a separação clara.  
-- O futebol, por ser um evento com forte componente de imprevisibilidade, impõe limites naturais ao desempenho de qualquer modelo.  
+Alguns pontos importantes emergem da análise:
+- O K-Means não tem acesso direto às classes, e portanto os agrupamentos não correspondem necessariamente a vitórias, empates ou derrotas.  
+- A sobreposição natural dos dados mostra que estatísticas gerais de jogo não são suficientes para definir fronteiras claras entre resultados.  
+- O futebol continua sendo altamente imprevisível, com variáveis externas (clima, arbitragem, forma dos jogadores, estratégia) que não estão refletidas na base.  
 
 ### Conclusão
 
-Assim como na árvore de decisão, a experiência com o KNN reforça a importância de interpretar os resultados com cautela.  
-A acurácia próxima de 0.5 não deve ser vista apenas como limitação do algoritmo, mas como reflexo da complexidade do domínio esportivo.  
+O uso do K-Means neste projeto demonstrou o potencial dos algoritmos não supervisionados para **explorar padrões** em conjuntos de dados complexos, mas também reforçou suas limitações frente a tarefas de previsão.  
+A acurácia de ~47.9% mostra que, mesmo quando os clusters são posteriormente relacionados às classes reais, o modelo não consegue separar bem as situações de vitória, empate e derrota.  
 
-O projeto destacou a relevância da análise exploratória, do cuidado com o pré-processamento e da avaliação crítica dos modelos. Além disso, abre espaço para trabalhos futuros que explorem variáveis adicionais (desempenho histórico dos times, estatísticas de jogadores, forma recente, fatores externos) e ajustes de hiperparâmetros do KNN para buscar melhorias.  
-
-Mais do que prever com exatidão, este trabalho evidencia o potencial e os limites do uso de algoritmos de aprendizado de máquina em contextos reais, nos quais a incerteza é parte inerente do fenômeno analisado.
+Assim como nos experimentos anteriores, o aprendizado principal não está apenas no valor numérico da métrica, mas no entendimento de que **nem todo fenômeno pode ser descrito por padrões lineares ou consistentes**.  
+Esse resultado abre espaço para trabalhos futuros, como o uso de **modelos híbridos** (combinando supervisionados e não supervisionados) ou a incorporação de variáveis mais ricas, como desempenho de jogadores, estatísticas avançadas e fatores contextuais adicionais.
