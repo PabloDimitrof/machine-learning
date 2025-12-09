@@ -1,95 +1,36 @@
-# Template de Entrega
+# Projeto de Machine Learning — Projeto 1
 
+Bem-vindo! Este espaço reúne o **Projeto 1 de Machine Learning** desenvolvido no formato do Prof. Humberto Sandmann, com foco em organização clara, reprodutibilidade e comparação de algoritmos.
 
-???+ info inline end "Edição"
+## Objetivo Geral
+Investigar, treinar e avaliar diferentes algoritmos de *Machine Learning* em um conjunto de dados tabular, passando por todas as etapas do fluxo padrão:
+1. **Exploração dos Dados (EDA)**
+2. **Pré-processamento**
+3. **Divisão Treino/Teste**
+4. **Treinamento de Modelos**  
+   - Árvore de Decisão  
+   - K-Nearest Neighbors (KNN) — versão manual e `scikit-learn`  
+   - K-Means (clustering)  
+   - Random Forest
+5. **Avaliação do Modelo** (acurácia, precisão, recall, F1, matriz de confusão, ROC-AUC)
+6. **Relatório Final** com achados e próximos passos
 
-    2025.1
+## Base de Dados
+- **Dataset principal:** [Premier League Stats](https://www.kaggle.com/datasets/mohamadsallah5/english-premier-league-stats20212024)
+- **Alvo supervisionado (quando aplicável):** `quality_high` (derivado de `points ≥ 90`).  
+- **Observação:** Em tarefas não supervisionadas (K-Means), o rótulo não é usado no treino; métricas são obtidas via mapeamento posterior (voto majoritário).
 
+## Metodologia (visão resumida)
+- **EDA:** descrição das variáveis, distribuição, frequências e possíveis outliers (gráficos específicos por tipo de dado).  
+- **Pré-processamento:** limpeza de colunas, conversões de tipo, *label encoding*/*one-hot* para categóricas, padronização quando necessário e **evitar vazamento** (ex.: `points` não entra como *feature* quando gera o alvo).  
+- **Split:** 70% treino / 30% teste, **estratificado** pelo alvo.  
+- **Modelagem:**  
+  - **Árvore de Decisão**: baseline interpretável.  
+  - **KNN**: implementação **manual** para didática + versão `scikit-learn` com PCA (visualização da fronteira).  
+  - **K-Means**: **k=3** (exploratório), PCA 2D e avaliação via mapeamento cluster→classe.  
+  - **Random Forest**: *ensemble* para reduzir variância e melhorar generalização.
 
-## Grupo/Kit X
-
-1. Pablo Dimitrof de Siqueira
-
-
-
-!!! tip "Instruções"
-
-    Vocês devem utilizar este template como um bloco de notas para registrar o que foi feito e o que falta fazer. Vocês devem adicionar as informações necessárias.
-    O template deve ser editado e atualizado a cada entrega, registrando assim a data de entrega e o que foi feito até o momento via Git.
-
-## Entregas
-
-- [x] Roteiro 1 - Data 23/02/2025
-- [ ] Roteiro 2
-- [ ] Roteiro 3
-- [ ] Roteiro 4
-- [ ] Projeto
-
-## Diagramas
-
-Use o [Mermaid](https://mermaid.js.org/intro/){:target='_blank'} para criar os diagramas de documentação.
-
-[Mermaid Live Editor](https://mermaid.live/){:target='_blank'}
-
-
-``` mermaid
-flowchart TD
-    Deployment:::orange -->|defines| ReplicaSet
-    ReplicaSet -->|manages| pod((Pod))
-    pod:::red -->|runs| Container
-    Deployment -->|scales| pod
-    Deployment -->|updates| pod
-
-    Service:::orange -->|exposes| pod
-
-    subgraph  
-        ConfigMap:::orange
-        Secret:::orange
-    end
-
-    ConfigMap --> Deployment
-    Secret --> Deployment
-    classDef red fill:#f55
-    classDef orange fill:#ffa500
-```
-
-
-
-## Códigos
-
-=== "De um arquivo remoto"
-
-    ``` { .yaml .copy .select linenums='1' title="main.yaml" }
-    --8<-- "https://raw.githubusercontent.com/hsandmann/documentation.template/refs/heads/main/.github/workflows/main.yaml"
-    ```
-
-=== "Anotações no código"
-
-    ``` { .yaml title="compose.yaml" }
-    name: app
-
-        db:
-            image: postgres:17
-            environment:
-                POSTGRES_DB: ${POSTGRES_DB:-projeto} # (1)!
-                POSTGRES_USER: ${POSTGRES_USER:-projeto}
-                POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-projeto}
-            ports:
-                - 5432:5432 #(2)!
-    ```
-
-    1.  Caso a variável de ambiente `POSTGRES_DB` não exista ou seja nula - não seja definida no arquivo `.env` - o valor padrão será `projeto`. Vide [documentação](https://docs.docker.com/reference/compose-file/interpolation/){target='_blank'}.
-
-    2. Aqui é feito um túnel da porta 5432 do container do banco de dados para a porta 5432 do host (no caso localhost). Em um ambiente de produção, essa porta não deve ser exposta, pois ninguém de fora do compose deveria acessar o banco de dados diretamente.
-
-
-## Exemplo de vídeo
-
-Lorem ipsum dolor sit amet
-
-<iframe width="100%" height="470" src="https://www.youtube.com/embed/3574AYQml8w" allowfullscreen></iframe>
-
-
-## Referências
-
-[Material for MkDocs](https://squidfunk.github.io/mkdocs-material/reference/){:target='_blank'}
+## Como Reproduzir
+1. Garanta um ambiente com Python 3.10+ e instale:
+   ```bash
+   pip install pandas numpy scikit-learn matplotlib
